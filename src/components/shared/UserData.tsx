@@ -7,21 +7,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eraser, FilePenLine } from "lucide-react";
+import { FilePenLine } from "lucide-react";
 import { Button } from "../ui/button";
-import { useDeleteUser, useGetUsers } from "@/services/queries";
+import { useGetUsers } from "@/services/queries";
 import DeleteDialog from "./DeleteDialog";
 
 export default function UserData() {
-  const { data: users, isLoading, error } = useGetUsers();
-  const deleteUserMutation = useDeleteUser();
+  const { data: users, isLoading, error, refetch } = useGetUsers(); // Added refetch for updating data after deletion
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading users data: {error.message}</div>;
-
-  const handleDelete = (id: number) => {
-    deleteUserMutation.mutate(id);
-  };
 
   return (
     <Table>
@@ -51,18 +46,13 @@ export default function UserData() {
                 >
                   <FilePenLine className="h-4 w-4" />
                 </Button>
-                {/* <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleDelete(user.id)}
-                  disabled={deleteUserMutation.isPending}
-                >
-                  <Eraser className="h-4 w-4" />
-                </Button> */}
-                <DeleteDialog
-                  userId={user.id}
-                  userName={user.nama}
-                />
+                {user.id !== undefined && (
+                  <DeleteDialog
+                    userId={user.id}
+                    userName={user.nama}
+                    onDelete={() => refetch()} // Refetch data after deletion
+                  />
+                )}
               </TableCell>
             </TableRow>
           ))

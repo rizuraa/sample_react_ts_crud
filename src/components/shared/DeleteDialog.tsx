@@ -1,3 +1,4 @@
+import React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,13 +17,22 @@ import { useDeleteUser } from "@/services/queries";
 interface DeleteDialogProps {
   userId: number;
   userName: string;
+  onDelete: () => void; // Prop untuk fungsi onDelete
 }
 
-const DeleteDialog: React.FC<DeleteDialogProps> = ({ userId, userName }) => {
+const DeleteDialog: React.FC<DeleteDialogProps> = ({
+  userId,
+  userName,
+  onDelete,
+}) => {
   const deleteUserMutation = useDeleteUser();
 
   const handleDelete = () => {
-    deleteUserMutation.mutate(userId);
+    deleteUserMutation.mutate(userId, {
+      onSuccess: () => {
+        onDelete(); // Panggil fungsi onDelete untuk memperbarui UI atau state setelah penghapusan
+      },
+    });
   };
 
   return (

@@ -33,6 +33,7 @@ const FormInput: React.FC<FormInputProps> = ({ onSubmit }) => {
 
   const handleSubmit = (data: z.infer<typeof userFormSchema>) => {
     onSubmit(data);
+    form.reset(); // Reset the form to its default values
   };
 
   return (
