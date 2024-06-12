@@ -12,15 +12,30 @@ interface ApiResponse<T> {
 }
 
 export const getUsers = async (): Promise<IUser[]> => {
-    const response = await axiosInstance.get<ApiResponse<IUser[]>>("users");
-    const users = response.data.data; // Akses data dari respons
+    try {
+        const response = await axiosInstance.get<ApiResponse<IUser[]>>("users");
+        const users = response.data.data;
 
-    // Pastikan bahwa users adalah array
-    if (!Array.isArray(users)) {
-        throw new Error("bukan array blok");
+        if (!Array.isArray(users)) {
+            throw new Error("Data is not an array");
+        }
+
+        return users;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            return []; // Return empty array if 404 status
+        } else {
+            throw error;
+        }
     }
-
-    return users;
 }
 
+// delete user 
+export const deleteUser =  async (id:number) => {
+    const response = await axiosInstance.delete<ApiResponse<null>>(`users/${id}`);
+    return response.data;
+}
 
+// create user 
+export const createUser = async (user: IUser) => {
+    return (await axiosInstance.post<IUser>("users", user)).data;};

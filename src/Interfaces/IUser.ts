@@ -1,5 +1,5 @@
 export interface IUser {
-    id: number; 
+    id?: number; 
     nama: string;
     email: string;
     role: string;
@@ -7,4 +7,4 @@ export interface IUser {
     access_token?: string;
     created_at?: Date;
     updated_at?: Date;        
-}
+}   
