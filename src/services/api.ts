@@ -32,10 +32,29 @@ export const getUsers = async (): Promise<IUser[]> => {
 
 // delete user 
 export const deleteUser =  async (id:number) => {
-    const response = await axiosInstance.delete<ApiResponse<null>>(`users/${id}`);
-    return response.data;
+    try {
+        const response = await axiosInstance.delete<ApiResponse<null>>(`users/${id}`);
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            throw new Error("User not found");
+        } else {
+            throw error;
+        }
+    }
 }
 
 // create user 
 export const createUser = async (user: IUser) => {
-    return (await axiosInstance.post<IUser>("users", user)).data;};
+    return (await axiosInstance.post<IUser>("users", user)).data;
+};
+
+// update
+export const updateUser = async (id: number, user: Partial<IUser>) => {
+    try {
+        const response = await axiosInstance.put<ApiResponse<IUser>>(`users/update-user/${id}`, user);
+        return response.data.data
+    } catch (error) {
+        throw error
+    }
+}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,12 +17,20 @@ import { IUser } from "@/Interfaces/IUser";
 
 interface FormInputProps {
   onSubmit: (data: Omit<IUser, "id">) => void;
+  defaultValues?: Partial<IUser>;
+  isUpdate?: boolean;
+  resetForm: () => void;
 }
 
-const FormInput: React.FC<FormInputProps> = ({ onSubmit }) => {
+const FormInput: React.FC<FormInputProps> = ({
+  onSubmit,
+  defaultValues,
+  isUpdate,
+  resetForm,
+}) => {
   const form = useForm<z.infer<typeof userFormSchema>>({
     resolver: zodResolver(userFormSchema),
-    defaultValues: {
+    defaultValues: defaultValues || {
       nama: "",
       email: "",
       role: "",
@@ -31,25 +39,45 @@ const FormInput: React.FC<FormInputProps> = ({ onSubmit }) => {
     },
   });
 
+  useEffect(() => {
+    if (isUpdate) {
+      form.reset(defaultValues);
+    }
+  }, [defaultValues, isUpdate, form]);
+
+  useEffect(() => {
+    if (!isUpdate) {
+      form.reset({
+        nama: "",
+        email: "",
+        role: "",
+        password: "",
+        access_token: "",
+      });
+    }
+  }, [isUpdate, form]);
+
   const handleSubmit = (data: z.infer<typeof userFormSchema>) => {
     onSubmit(data);
-    form.reset(); // Reset the form to its default values
+    resetForm();
   };
 
   return (
     <div>
-      <h1 className="mb-5">Input Data User</h1>
+      <h1 className="text-center text-lg font-bold">
+        {isUpdate ? "Update Data User" : "Input Data User"}
+      </h1>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="space-y-8"
+          className="space-y-4"
         >
           <FormField
             control={form.control}
             name="nama"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="form-label">Nama</FormLabel>
+                <FormLabel>Nama</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="nama"
@@ -65,7 +93,7 @@ const FormInput: React.FC<FormInputProps> = ({ onSubmit }) => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="form-label">Email</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="example@example.com"
@@ -81,7 +109,7 @@ const FormInput: React.FC<FormInputProps> = ({ onSubmit }) => {
             name="role"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="form-label">Role</FormLabel>
+                <FormLabel>Role</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="role"
@@ -97,7 +125,7 @@ const FormInput: React.FC<FormInputProps> = ({ onSubmit }) => {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="form-label">Password</FormLabel>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="password"
@@ -114,10 +142,10 @@ const FormInput: React.FC<FormInputProps> = ({ onSubmit }) => {
             name="access_token"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="form-label">test</FormLabel>
+                <FormLabel>Access Token</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="test"
+                    placeholder="access_token"
                     {...field}
                   />
                 </FormControl>
@@ -125,7 +153,12 @@ const FormInput: React.FC<FormInputProps> = ({ onSubmit }) => {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button
+            type="submit"
+            className="w-full"
+          >
+            Submit
+          </Button>
         </form>
       </Form>
     </div>

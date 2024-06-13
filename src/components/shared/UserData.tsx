@@ -11,9 +11,14 @@ import { FilePenLine } from "lucide-react";
 import { Button } from "../ui/button";
 import { useGetUsers } from "@/services/queries";
 import DeleteDialog from "./DeleteDialog";
+import { IUser } from "@/Interfaces/IUser";
 
-export default function UserData() {
-  const { data: users, isLoading, error, refetch } = useGetUsers(); // Added refetch for updating data after deletion
+interface UserDataProps {
+  onEditUser: (user: IUser) => void;
+}
+
+const UserData: React.FC<UserDataProps> = ({ onEditUser }) => {
+  const { data: users, isLoading, error } = useGetUsers();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading users data: {error.message}</div>;
@@ -33,7 +38,7 @@ export default function UserData() {
       <TableBody>
         {users && users.length > 0 ? (
           users.map((user, index) => (
-            <TableRow key={user.id}>
+            <TableRow key={user.id ?? index}>
               <TableCell className="font-medium">{index + 1}</TableCell>
               <TableCell>{user.nama}</TableCell>
               <TableCell>{user.email}</TableCell>
@@ -43,6 +48,7 @@ export default function UserData() {
                   variant="outline"
                   size="icon"
                   className="mr-2"
+                  onClick={() => onEditUser(user)}
                 >
                   <FilePenLine className="h-4 w-4" />
                 </Button>
@@ -50,7 +56,6 @@ export default function UserData() {
                   <DeleteDialog
                     userId={user.id}
                     userName={user.nama}
-                    onDelete={() => refetch()} // Refetch data after deletion
                   />
                 )}
               </TableCell>
@@ -69,4 +74,6 @@ export default function UserData() {
       </TableBody>
     </Table>
   );
-}
+};
+
+export default UserData;
